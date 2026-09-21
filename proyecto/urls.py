@@ -1,5 +1,5 @@
+from django.urls import path
 from django.shortcuts import render
 
-# Create your views here.
 def vista_login(request):
     return render(request, 'Login/index.html')
