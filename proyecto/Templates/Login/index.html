@@ -30,7 +30,8 @@
             </div>
             <h3 class="card-title text-center mb-4"></h3>
 
-            <form method="POST" action="">
+            <form method="POST" action="{% url 'custom_login' %}">
+                {% csrf_token %}
                 <!-- Campo para el correo electrónico -->
                 <div class="mb-3">
                     <label for="username" class="form-label">usuario</label>
