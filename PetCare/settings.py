@@ -124,6 +124,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",   #Ruta al directorio de archivos estáticos
 ]
 
+AUTH_USER_MODEL = 'proyecto.User'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
