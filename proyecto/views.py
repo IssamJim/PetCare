@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model, logout
+
+from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
 # Create your views here.
@@ -31,6 +33,19 @@ def custom_login(request):
             messages.error(request, 'Usuario o contraseña incorrectos.')
     return render(request, 'Login/index.html')
 
-
+@login_required(login_url='custom_login')
 def home(request):
     return render(request, 'home/index.html', {'usuario': request.user})
+
+def custom_logout(request):
+    logout(request)
+    response = redirect('custom_login')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+@login_required(login_url='custom_login')
+def vista_usuario(request):
+    #tipos = Tipo.objects.exclude(nombre__in=['root', 'cliente'])
+    return render(request, 'usuario/index.html', {'usuario': request.user})

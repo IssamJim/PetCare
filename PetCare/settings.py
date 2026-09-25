@@ -126,6 +126,13 @@ STATICFILES_DIRS = [
 
 AUTH_USER_MODEL = 'proyecto.User'
 
+#Define la url a la que se redirige después del inicio de sesión. usuarios no autenticados serán redirigidos a esta url cuando intenten acceder a una vista protegida.
+LOGIN_URL = 'custom_login' #Nombre de la vista de inicio de sesión
+
+#Define la url a la que se redirige después del cierre de sesión.
+LOGOUT_REDIRECT_URL = 'custom_login' #Nombre de la vista a la que se redirige después del cierre de sesión
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
