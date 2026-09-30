@@ -1,1 +1,99 @@
-<h1>usuario</h1>
+{% extends 'base.html' %}
+{% block title %} Usuario {% endblock title %}
+{% block content %}
+
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {% endfor %}
+      </div>    
+  {% endif %}
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>
+            <i class="fas fa-users">Gestion de Usuarios</i>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#crearusuarios">
+                <i class="fas fa-plus">Nuevo Usuario</i>
+            </button>
+        </h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Gestion de Usuarios</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <!-- Default box -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Title</h3>
+    </div>
+    <div class="card-body">Start creating your amazing application!</div>
+    <!-- /.card-body -->
+    <div class="card-footer">Footer</div>
+    <!-- /.card-footer-->
+  </div>
+  <!-- /.card -->
+</section>
+
+<div class="modal fade" id="crearusuarios">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header bg bg-success">
+              <h5 class="modal-title">Crear usuarios</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form action="{% url 'crear_usuario' %}" method="POST">
+              {% csrf_token %}
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="nombre">Nombre:</label>
+                      <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ingresa el nombre del usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="apellido">Apellido:</label>
+                      <input type="text" class="form-control" id="apellido" name="apellido" required placeholder="Ingresa el apellido del usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="username">Usuario:</label>
+                      <input type="text" class="form-control" id="username" name="username" required placeholder="Ingresa el nombre de usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="password">Contraseña:</label>
+                      <input type="password" class="form-control" id="password" name="password" required placeholder="Ingresa la contraseña del usuario" />
+                  </div>
+                  <div class="form-group">
+                      <label for="rol">Rol de Usuario:</label>
+                      <select class="form-control select2" id="rol" name="rol" required style="width: 100%">
+                          <option value="" disabled selected>Seleccione un rol</option>
+                          {% for tipo in roles %}
+                          <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                          {% endfor %}
+                      </select>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary w-100">Guardar usuario</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+{% endblock content %}
