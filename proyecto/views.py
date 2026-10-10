@@ -7,6 +7,15 @@ from django.contrib.auth.hashers import make_password  # Para encriptar contrase
 from django.contrib.auth import get_user_model  # Para obtener el modelo de usuario personalizado
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied
+from django.db import DatabaseError, IntegrityError, transaction
+from django.db.models.functions import Trim
+from django.utils import translation
+from django.views.decorators.cache import never_cache
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.http import require_http_methods, require_GET
+
+from .forms import RegistroClienteForm
 
 from django.contrib.auth.decorators import login_required
 
@@ -52,11 +61,13 @@ def custom_logout(request):
 
 @login_required(login_url='custom_login')
 def vista_usuario(request):
+    _require_user_management_access(request.user)
     roles = Tipo.objects.exclude(nombre__in=['root'])
     return render(request, 'usuario/index.html', {'usuario': request.user, 'roles': roles})
 
 @login_required(login_url='custom_login')
 def crear_usuario(request):
+    _require_user_management_access(request.user)
     # Verificamos si la petición es de tipo POST (cuando se envía el formulario)
     if request.method == 'POST':
         # Obtenemos los datos del formulario
@@ -118,3 +129,61 @@ def crear_usuario(request):
 
     # Renderizamos la plantilla con el contexto
     return render(request, 'usuario/crear.html', context)
+
+
+def _require_user_management_access(user):
+    if not (user.is_superuser or (user.tipo and user.tipo.nombre in ("Root", "Administrador"))):
+        raise PermissionDenied("No tienes permiso para administrar usuarios.")
+
+
+@sensitive_post_parameters("password1", "password2")
+@never_cache
+@require_http_methods(["GET", "POST"])
+def registro_cliente(request):
+    with translation.override("es"):
+        form = RegistroClienteForm(request.POST if request.method == "POST" else None)
+        status = 200
+        if request.method == "POST":
+            try:
+                if form.is_valid():
+                    try:
+                        with transaction.atomic():
+                            form.save()
+                    except IntegrityError:
+                        # The transaction has rolled back. A concurrent request may
+                        # have claimed either unique value after form validation.
+                        username = form.cleaned_data.get("username")
+                        email = form.cleaned_data.get("email")
+                        if User.objects.filter(username=username).exists():
+                            form.add_error("username", "Este nombre de usuario ya está en uso.")
+                        if User.objects.annotate(registration_email=Trim("email")).filter(
+                            registration_email__iexact=email
+                        ).exists():
+                            form.add_error("email", "Este correo electrónico ya está registrado.")
+                        if not form.errors:
+                            form.add_error(None, "No se pudo completar el registro. Inténtalo de nuevo.")
+                    else:
+                        request.session["registro_cliente_completado"] = True
+                        return redirect("registro_exitoso")
+            except Tipo.DoesNotExist:
+                form.add_error(None, "El registro de clientes no está disponible en este momento. Inténtalo más tarde.")
+                status = 503
+            except DatabaseError:
+                form.add_error(None, "No se pudo completar el registro. Inténtalo más tarde.")
+                status = 503
+
+        errors = []
+        for name, field_errors in form.errors.items():
+            label = form.fields[name].label if name in form.fields else "Registro"
+            errors.extend(f"{label}: {error}" for error in field_errors)
+            if name in form.fields:
+                form.fields[name].widget.attrs.update({"aria-invalid": "true", "class": "form-control is-invalid"})
+        return render(request, "Registro/index.html", {"form": form, "registration_errors": errors}, status=status)
+
+
+@never_cache
+@require_GET
+def registro_exitoso(request):
+    if not request.session.pop("registro_cliente_completado", False):
+        return redirect("registro_cliente")
+    return render(request, "Registro/exitoso.html")

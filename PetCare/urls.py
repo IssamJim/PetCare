@@ -23,6 +23,8 @@ urlpatterns = [
     path('', views.vista_login),
 
     path('loguearse', views.custom_login, name='custom_login'),
+    path('registro/', views.registro_cliente, name='registro_cliente'),
+    path('registro/exitoso/', views.registro_exitoso, name='registro_exitoso'),
     path('logout/', views.custom_logout, name='logout'),
 
     path('home/', views.home, name='home'),

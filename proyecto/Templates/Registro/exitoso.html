@@ -1,0 +1,11 @@
+{% extends 'Registro/base.html' %}
+{% block title %}Registro exitoso{% endblock %}
+{% block content %}
+  <div class="text-center" id="registration-success" data-login-url="{% url 'custom_login' %}">
+    <div class="registration-success-mark" aria-hidden="true">✓</div>
+    <h1 id="registration-title">¡Registro exitoso!</h1>
+    <p>Tu cuenta ha sido creada correctamente.</p>
+    <p class="text-muted">Ya puedes iniciar sesión con tu nombre de usuario y contraseña.</p>
+    <a class="btn btn-primary btn-block registration-submit mt-4" href="{% url 'custom_login' %}">Iniciar sesión</a>
+  </div>
+{% endblock %}

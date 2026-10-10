@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Registro de clientes{% endblock %} | PetCare</title>
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  <link rel="stylesheet" href="{% static 'plugins/sweetalert2/sweetalert2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/registro.css' %}">
+  <script defer src="{% static 'plugins/sweetalert2/sweetalert2.all.min.js' %}"></script>
+  <script defer src="{% static 'js/registro.js' %}"></script>
+</head>
+<body class="registration-page">
+  <main class="registration-shell">
+    <a class="registration-brand" href="{% url 'custom_login' %}" aria-label="PetCare: iniciar sesión">
+      <img src="{% static 'img/logo.png' %}" alt="" width="64" height="64">
+      <span>PetCare</span>
+    </a>
+    <section class="card card-outline card-primary registration-card" aria-labelledby="registration-title">
+      <div class="card-body p-4 p-sm-5">
+        {% block content %}{% endblock %}
+      </div>
+    </section>
+    <p class="registration-footer">El cuidado de tu mascota empieza aquí.</p>
+  </main>
+</body>
+</html>

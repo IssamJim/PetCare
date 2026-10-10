@@ -1,0 +1,33 @@
+{% extends 'Registro/base.html' %}
+{% block content %}
+  <p class="registration-eyebrow">BIENVENIDO A PETCARE</p>
+  <h1 id="registration-title">Crea tu cuenta</h1>
+  <p class="text-muted">Completa tus datos para empezar. Todos los campos son obligatorios.</p>
+
+  {% if form.errors %}
+    <div class="alert alert-danger" role="alert" id="registration-summary">
+      <strong>No se pudo completar el registro.</strong>
+      <ul class="mb-0 mt-2">{% for error in registration_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <form id="registration-form" action="{% url 'registro_cliente' %}" method="post">
+    {% csrf_token %}
+    <div class="row">
+      {% for field in form %}
+        <div class="form-group {% if field.name == 'first_name' or field.name == 'last_name' %}col-sm-6{% else %}col-12{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }} <span class="text-danger" aria-hidden="true">*</span></label>
+          {{ field }}
+          <div id="{{ field.id_for_label }}_help" class="form-text text-muted registration-help">{{ field.help_text }}</div>
+          <div id="{{ field.id_for_label }}_errors" class="invalid-feedback d-block" aria-live="polite">{{ field.errors }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    <button class="btn btn-primary btn-block registration-submit" type="submit" id="registration-submit">
+      Registrarse
+    </button>
+    <p id="registration-status" class="text-center mt-2 mb-0" role="status" aria-live="polite"></p>
+  </form>
+  <p class="text-center mt-4 mb-0">¿Ya tienes una cuenta? <a href="{% url 'custom_login' %}">Iniciar sesión</a></p>
+  {{ registration_errors|json_script:'registration-errors' }}
+{% endblock %}
